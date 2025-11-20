@@ -4,3 +4,9 @@ coverage/
 dist/
 build/
 .vscode
+*.log
+logs/
+data/
+docker-data/
+mongo-data/
+pg-data/
