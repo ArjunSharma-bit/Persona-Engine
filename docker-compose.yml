@@ -7,12 +7,13 @@ services:
       - "4000:3000"
     environment:
       - MONGO_URL=mongodb://mongo1:27017,mongo2:27018,mongo3:27019/personalization?replicaSet=rs0
-      - REDIS_URL=redis://redis:6379
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - PORT=3000
     depends_on:
       mongo-setup:
@@ -21,8 +22,6 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-    volumes:
-      - .:/app
     networks:
       - personalization-net
 
@@ -97,7 +96,7 @@ services:
   # Redis
   redis:
     image: redis:7-alpine
-    container_name: redis
+    container_name: redis-persona
     restart: always
     ports:
       - "6381:6379"
@@ -127,6 +126,20 @@ services:
       retries: 10
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - personalization-net
+
+  event-worker:
+    build: .
+    container_name: event-worker
+    restart: always
+    command: [ "npm", "run", "start:worker" ]
+    depends_on:
+      - mongo-setup
+      - redis
+    environment:
+      - MONGO_URL=${MONGO_URL}
+      - REDIS_URL=${REDIS_URL}
     networks:
       - personalization-net
 

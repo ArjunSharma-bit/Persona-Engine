@@ -1,12 +1,26 @@
-import { Injectable } from '@nestjs/common'
-
+import { InjectRedis } from "@nestjs-modules/ioredis";
+import { Injectable } from "@nestjs/common";
+import Redis from "ioredis";
 @Injectable()
 export class EventService {
+    constructor(
+        @InjectRedis() private readonly redis: Redis,
+    ) { }
+
     async ingestEvent(event: any) {
-        if (!event?.userId || !event.type) {
-            return { error: "Missing Req fields :: userId, type" };
+        const payload = {
+            userId: event.userId,
+            type: event.type,
+            data: event.data || {},
+            timestamp: event.timestamp || Date.now()
         }
-        console.log('Event Received', event);
-        return { status: 'accepted' };
+        await this.redis.xadd(
+            'event_stream',
+            '*',
+            'payload',
+            JSON.stringify(payload)
+        );
+
+        return { status: 'queued' };
     }
 }
