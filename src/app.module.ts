@@ -3,6 +3,7 @@ import { EventModule } from './event.module'
 import { MongoModule } from './database/mongo.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { ProfileModule } from './profile.module';
+import { AnalyticsModule } from './analytics.module';
 
 @Module({
     imports: [
@@ -13,6 +14,6 @@ import { ProfileModule } from './profile.module';
                 port: Number(process.env.REDIS_PORT)
             }
         }),
-        EventModule, MongoModule, ProfileModule],
+        EventModule, MongoModule, ProfileModule, AnalyticsModule],
 })
 export class AppModule { }
