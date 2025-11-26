@@ -23,6 +23,12 @@ export class UserProfile extends Document {
 
     @Prop()
     lastActive: number;
+
+    @Prop({ default: 0 })
+    churnScore: number;
+
+    @Prop({ type: Object, default: {} })
+    affinityScore: Record<string, number>;
 }
 
 export const UserProfileSchema = SchemaFactory.createForClass(UserProfile)

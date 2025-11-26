@@ -4,12 +4,14 @@ import { UserProfile } from "../schema/profile.schema";
 import { Model } from "mongoose";
 import { Redis } from 'ioredis'
 import { InjectRedis } from "@nestjs-modules/ioredis";
+import { MlService } from "../ml/ml.service";
 
 @Injectable()
 export class ProfileService {
     constructor(
         @InjectModel(UserProfile.name) private profileModel: Model<UserProfile>,
-        @InjectRedis() private readonly redis: Redis
+        @InjectRedis() private readonly redis: Redis,
+        private readonly mlService: MlService,
     ) { }
 
 
@@ -45,6 +47,24 @@ export class ProfileService {
                 profile.sessionCount += 1;
                 break;
         }
+
+        const inactivityDays = Math.max(0, (Date.now() - profile.lastActive) / (1000 * 60 * 60 * 24))
+
+        const churnFeatures = [
+            profile.totalEvents,
+            inactivityDays,
+            profile.sessionCount,
+        ]
+
+        profile.churnScore = this.mlService.predictChurn(churnFeatures);
+
+        const categoryCounts = profile.categoriesViewed.reduce((acc, cat) => {
+            acc[cat] = (acc[cat] || 0) + 1;
+            return acc;
+        }, {})
+
+        profile.affinityScore = categoryCounts;
+
         await profile.save()
 
         await this.redis.set(`profile:${userId}`, JSON.stringify(profile), 'EX', 3600)
