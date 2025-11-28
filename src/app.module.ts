@@ -15,6 +15,6 @@ import { MlModule } from './ml/ml.module';
                 port: Number(process.env.REDIS_PORT)
             }
         }),
-        EventModule, MongoModule, ProfileModule, AnalyticsModule, MlModule],
+        EventModule, MongoModule, ProfileModule, AnalyticsModule, MlModule,],
 })
 export class AppModule { }

@@ -3,6 +3,13 @@ import mongoose from 'mongoose';
 import { normalizeEvent } from '../src/norma-lizers';
 import { EventSchema } from '../src/schema/event.schema';
 import { UserProfileSchema } from '../src/schema/profile.schema';
+import { ProfileService } from "../src/services/profile.service";
+import { MlService } from '../src/ml/ml.service';
+import { TriggerSchema } from '../src/schema/trigger.schema';
+import { TriggerService } from '../src/services/trigger.service';
+import { TriggerEvaluator } from './trigger-eval';
+import { mapMongoTrigger } from '../src/mapper/trigger.mapper'
+import { mapMongoProfile } from '../src/mapper/profile.mapper'
 
 async function bootstrap() {
   const redis = new Redis(process.env.REDIS_URL || "redis://redis:6379");
@@ -11,6 +18,13 @@ async function bootstrap() {
 
   const EventModel = mongoose.model('Event', EventSchema);
   const UserProfileModel = mongoose.model('UserProfile', UserProfileSchema);
+  const TriggerModel = mongoose.model('Trigger', TriggerSchema)
+
+  const mlService = new MlService();
+  const profileService = ProfileService.createForWorker(UserProfileModel, redis, mlService)
+  const triggerService = new TriggerService(TriggerModel)
+
+  const triggerEval = new TriggerEvaluator();
 
   console.log('Worker started, listening for events...');
 
@@ -27,50 +41,40 @@ async function bootstrap() {
 
     const [stream, entries] = response[0];
     for (const [id, fields] of entries) {
-      const payload = JSON.parse(fields[1]);
+      try {
+        const payload = JSON.parse(fields[1]);
 
-      const { userId, type, data, timestamp } = payload;
+        const { userId, type, data, timestamp } = payload;
+        const normalizedData = normalizeEvent(type, data);
 
-      // Normalize
-      const normalizedData = normalizeEvent(type, data);
+        await EventModel.create({
+          userId, type, data: normalizedData, timestamp,
+        });
 
-      // Save Event
-      await EventModel.create({
-        userId,
-        type,
-        data: normalizedData,
-        timestamp,
-      });
+        const profile = await profileService.upsertProfileFromEvent({
+          userId, type, data: normalizedData, timestamp,
+        })
 
-      // Update Profile
-      const profile = await UserProfileModel.findOne({ userId }) ||
-        new UserProfileModel({ userId, totalEvents: 0, sessionCount: 0 });
+        const triggerDocs = await triggerService.getActiveTrigger();
+        const triggers = mapMongoTrigger(triggerDocs)
+        const plainPro = mapMongoProfile(profile)
+        const fired = await triggerEval.evaluateTriggers(plainPro, triggers)
 
-      profile.totalEvents += 1;
-      profile.lastActive = timestamp;
-
-      if (type === 'product_view') {
-        if (normalizedData.category) {
-          if (!profile.categoriesViewed.includes(normalizedData.category)) {
-            profile.categoriesViewed.push(normalizedData.category);
-          }
+        if (fired.length > 0) {
+          console.log(" Triggers Firrrrred", fired);
         }
-        profile.lastSeenProduct = normalizedData.productId;
+
+        console.log('processed event:', id, 'for user:', userId)
+
+
+      } catch (err) {
+        console.error("worker Error", err)
+
+        await redis.xadd("event_stream_dlq", "*", "payload", fields[1]);
       }
-
-      if (type === 'purchase') {
-        profile.totalPurchaseAmount += normalizedData.amount;
-      }
-
-      if (type === 'session_start') {
-        profile.sessionCount += 1;
-      }
-
-      await profile.save();
-
-      console.log('Processed event:', id, 'for user:', userId);
     }
   }
 }
+
 
 bootstrap();
