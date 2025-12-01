@@ -29,4 +29,20 @@ export class AnalyticsController {
     userFunnel(@Param('id') id: string) {
         return this.analysisService.funnel(id);
     }
+
+    @Get("sql/daily-events")
+    getDailyEventsSql() {
+        return this.analysisService.getSqlDailyEvents();
+    }
+
+    @Get("sql/categories")
+    getCategorySql() {
+        return this.analysisService.getSqlCategoryStats();
+    }
+
+    @Get("sql/revenue")
+    getRevenueSql() {
+        return this.analysisService.getSqlRevenue();
+    }
+
 }

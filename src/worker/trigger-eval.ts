@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Profile, TriggerDefinition, TriggerCondition, TriggerAction } from "../src/types/profile";
+import { Profile, TriggerDefinition, TriggerCondition, TriggerAction } from "../types/profile";
 
 export class TriggerEvaluator {
     async evaluateTriggers(profile: Profile, triggers: TriggerDefinition[]): Promise<string[]> {

@@ -1,15 +1,15 @@
 import Redis from 'ioredis';
 import mongoose from 'mongoose';
-import { normalizeEvent } from '../src/norma-lizers';
-import { EventSchema } from '../src/schema/event.schema';
-import { UserProfileSchema } from '../src/schema/profile.schema';
-import { ProfileService } from "../src/services/profile.service";
-import { MlService } from '../src/ml/ml.service';
-import { TriggerSchema } from '../src/schema/trigger.schema';
-import { TriggerService } from '../src/services/trigger.service';
+import { normalizeEvent } from '../norma-lizers';
+import { EventSchema } from '../schema/event.schema';
+import { UserProfileSchema } from '../schema/profile.schema';
+import { ProfileService } from "../services/profile.service";
+import { MlService } from '../ml/ml.service';
+import { TriggerSchema } from '../schema/trigger.schema';
+import { TriggerService } from '../services/trigger.service';
 import { TriggerEvaluator } from './trigger-eval';
-import { mapMongoTrigger } from '../src/mapper/trigger.mapper'
-import { mapMongoProfile } from '../src/mapper/profile.mapper'
+import { mapMongoTrigger } from '../mapper/trigger.mapper'
+import { mapMongoProfile } from '../mapper/profile.mapper'
 
 async function bootstrap() {
   const redis = new Redis(process.env.REDIS_URL || "redis://redis:6379");

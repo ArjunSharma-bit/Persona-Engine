@@ -2,13 +2,24 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Event } from "../schema/event.schema";
+import { Client } from "pg";
 
 
 @Injectable()
 export class AnalyticsService {
+    private pg: Client;
     constructor(
         @InjectModel(Event.name) private eventModel: Model<Event>
-    ) { }
+    ) {
+        this.pg = new Client({
+            host: process.env.POSTGRES_HOST,
+            port: Number(process.env.POSTGRES_PORT),
+            user: process.env.POSTGRES_USER,
+            password: process.env.POSTGRES_PASSWORD,
+            database: process.env.POSTGRES_DB,
+        })
+        this.pg.connect();
+    }
 
     async CountByType() {
         return this.eventModel.aggregate([
@@ -65,6 +76,26 @@ export class AnalyticsService {
             purchased: events.some(e => e.type === "purchase"),
 
         }
+    }
+    async getSqlDailyEvents() {
+        const result = await this.pg.query(
+            "SELECT * FROM daily_events ORDER BY date DESC LIMIT 30"
+        );
+        return result.rows;
+    }
+
+    async getSqlCategoryStats() {
+        const result = await this.pg.query(
+            "SELECT * FROM category_stats ORDER BY date DESC LIMIT 50"
+        );
+        return result.rows;
+    }
+
+    async getSqlRevenue() {
+        const result = await this.pg.query(
+            "SELECT * FROM revenue_daily ORDER BY date DESC LIMIT 30"
+        );
+        return result.rows;
     }
 
 }
