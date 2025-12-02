@@ -18,7 +18,9 @@ export class ProfileService {
         return new ProfileService(model, redis, ml);
     }
 
-    async upsertProfileFromEvent(event: { userId: string; type: string; data: any; timestamp: number; }) {
+    async upsertProfileFromEvent(event: { userId: string; type: string; data: any; timestamp: number; },
+        mode: "full" | "recompute" | "profile-only" = "full"
+    ) {
         const { userId, type, data, timestamp = Date.now() } = event;
 
         let profile = await this.profileModel.findOne({ userId });
@@ -64,8 +66,19 @@ export class ProfileService {
             default:
                 break;
         }
+        if (mode === "full" || mode === "recompute") {
+            this.applyMl(profile)
+            this.applyAffinity(profile)
+            this.applySegment(profile)
+        }
+        await profile.save();
+        await this.redis.set(`profile:${userId}`, JSON.stringify(profile), 'EX', 3600);
 
-        // --- ML scoring ---
+        return profile;
+    }
+
+    //ml scoring
+    private applyMl(profile: any) {
         const inactivityDays = Math.max(0, (Date.now() - (profile.lastActive || Date.now())) / (1000 * 60 * 60 * 24));
         const churnFeatures = [
             profile.totalEvents || 0,
@@ -73,25 +86,29 @@ export class ProfileService {
             profile.sessionCount || 0,
         ];
         profile.churnScore = this.mlService.predictChurn(churnFeatures);
+    }
 
-        const categoryCounts = (profile.categoriesViewed || []).reduce<Record<string, number>>((acc, cat) => {
+    //affinity scoring
+    private applyAffinity(profile: any) {
+        const categoryCounts = profile.categoriesViewed.reduce((acc, cat) => {
             acc[cat] = (acc[cat] || 0) + 1;
             return acc;
         }, {});
         profile.affinityScore = categoryCounts;
-
+    }
+    //segment scoring
+    private applySegment(profile: any) {
         const segments: string[] = [];
 
-        // High activity
         if ((profile.totalEvents || 0) > 50 || (profile.sessionCount || 0) > 10) {
             segments.push('high_activity');
         }
 
         if (profile.affinityScore && Object.keys(profile.affinityScore).length > 0) {
-            const sorted = Object.entries(profile.affinityScore).sort((a, b) => b[1] - a[1]);
+            const sorted = Object.entries(profile.affinityScore).sort((a, b) => (b[1] as number) - (a[1] as number));
             const [topCategory, topCount] = sorted[0];
-            const total = Object.values(profile.affinityScore).reduce((a, b) => a + b, 0) || 1;
-            if (topCount / total > 0.5) {
+            const total = Object.values(profile.affinityScore).reduce((a, b) => (a as number) + (b as number), 0) || 1;
+            if ((topCount as number) / (total as number) > 0.5) {
                 segments.push(`${topCategory}_lover`);
             }
         }
@@ -112,11 +129,6 @@ export class ProfileService {
         }
 
         profile.segments = Array.from(new Set(segments));
-
-        await profile.save();
-        await this.redis.set(`profile:${userId}`, JSON.stringify(profile), 'EX', 3600);
-
-        return profile;
     }
 
     async getProfile(userId: string) {

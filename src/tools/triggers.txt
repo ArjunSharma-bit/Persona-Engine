@@ -1,0 +1,133 @@
+db.triggers.insertMany([
+  {
+    name: "Churn Risk Alert",
+    description: "Fires when churnScore is high.",
+    enabled: true,
+    condition: {
+      churnScore: { $gt: 0.7 }
+    },
+    action: {
+      type: "log",
+      message: "High churn risk user detected"
+    },
+    createdAt: new Date()
+  },
+  {
+    name: "High Activity Bonus",
+    description: "User performs many events",
+    enabled: true,
+    condition: {
+      totalEvents: { $gt: 100 }
+    },
+    action: {
+      type: "log",
+      message: "High activity user detected"
+    },
+    createdAt: new Date()
+  },
+  {
+    name: "Electronics Lover Promo",
+    description: "User prefers electronics category",
+    enabled: true,
+    condition: {
+      segments: "electronics_lover"
+    },
+    action: {
+      type: "log",
+      message: "Send electronics discount promotion"
+    },
+    createdAt: new Date()
+  },
+  {
+    name: "Shoes Lover Offer",
+    description: "User likes shoe category",
+    enabled: true,
+    condition: {
+      segments: "shoes_lover"
+    },
+    action: {
+      type: "log",
+      message: "Shoes lover detected — recommend footwear"
+    },
+    createdAt: new Date()
+  },
+  {
+    name: "Inactive User Alert",
+    description: "User hasn't been active recently",
+    enabled: true,
+    condition: {
+      inactivityDays: { $gt: 14 }
+    },
+    action: {
+      type: "log",
+      message: "Inactive user needs re-engagement"
+    },
+    createdAt: new Date()
+  },
+  {
+    name: "High Value Customer",
+    description: "User has spent more than Rs 100000 total",
+    enabled: true,
+    condition: {
+      totalPurchaseAmount: { $gt: 100000 }
+    },
+    action: {
+      type: "log",
+      message: "High value customer — VIP treatment"
+    },
+    createdAt: new Date()
+  },
+  {
+    name: "Cart Abandonment",
+    description: "User added item to cart but did not buy",
+    enabled: true,
+    condition: {
+      segments: "add_to_cart_only"
+    },
+    action: {
+      type: "log",
+      message: "Cart abandonment workflow"
+    },
+    createdAt: new Date()
+  },
+  {
+    name: "New User Welcome",
+    description: "When session count = 1",
+    enabled: true,
+    condition: {
+      sessionCount: 1
+    },
+    action: {
+      type: "log",
+      message: "Welcome the new user"
+    },
+    createdAt: new Date()
+  },
+  {
+    name: "Power User",
+    description: "User with very high activity",
+    enabled: true,
+    condition: {
+      totalEvents: { $gt: 300 }
+    },
+    action: {
+      type: "log",
+      message: "Power user — enable premium recommendations"
+    },
+    createdAt: new Date()
+  },
+  {
+    name: "Multi-Category Shopper",
+    description: "User viewed shoes and is electronics lover",
+    enabled: true,
+    condition: {
+      categoriesViewed: "shoes",
+      segments: "electronics_lover"
+    },
+    action: {
+      type: "log",
+      message: "User is browsing across multiple categories"
+    },
+    createdAt: new Date()
+  }
+]);

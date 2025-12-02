@@ -44,9 +44,47 @@ async function bootstrap() {
       try {
         const payload = JSON.parse(fields[1]);
 
-        const { userId, type, data, timestamp } = payload;
+        const { userId, type, data, timestamp, replayMode } = payload;
         const normalizedData = normalizeEvent(type, data);
 
+        //replay mode
+        switch (replayMode) {
+          case "dry-run":
+            console.log(`DRY-RUN ------- skipping event for user=${userId}`)
+            continue;
+
+          case "recompute":
+            await profileService.upsertProfileFromEvent({
+              userId, type, data: normalizedData, timestamp,
+            })
+            console.log(`RECOMPUTE ----- Updated profile only for ${userId}`)
+            continue;
+
+          case "profile-only":
+            await profileService.upsertProfileFromEvent({
+              userId, type, data: normalizedData, timestamp,
+            })
+            console.log(`PROFILE ------ Updated profile only for ${userId}`)
+            continue;
+
+          case "triggers-only":
+            {
+              const existing = await UserProfileModel.findOne({ userId })
+              if (existing) {
+                const domainProfile = mapMongoProfile(existing);
+                const triggerDocs = await triggerService.getActiveTrigger();
+                const triggers = mapMongoTrigger(triggerDocs);
+
+                const fired = await triggerEval.evaluateTriggers(domainProfile, triggers);
+                console.log(`TRIGGERS ---- Fired`, fired)
+              }
+            }
+            continue;
+          //full/normal flow
+          default:
+            break;
+        }
+        //normal mode
         await EventModel.create({
           userId, type, data: normalizedData, timestamp,
         });

@@ -15,7 +15,7 @@ async function runBatch() {
         user: "postgres",
         password: "postgres",
         database: "persona"
-    });
+    })
     await pg.connect()
 
     const today = new Date();
