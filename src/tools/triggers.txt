@@ -2,7 +2,7 @@ db.triggers.insertMany([
   {
     name: "Churn Risk Alert",
     description: "Fires when churnScore is high.",
-    enabled: true,
+    active: true,
     condition: {
       churnScore: { $gt: 0.7 }
     },
@@ -15,7 +15,7 @@ db.triggers.insertMany([
   {
     name: "High Activity Bonus",
     description: "User performs many events",
-    enabled: true,
+    active: true,
     condition: {
       totalEvents: { $gt: 100 }
     },
@@ -28,7 +28,7 @@ db.triggers.insertMany([
   {
     name: "Electronics Lover Promo",
     description: "User prefers electronics category",
-    enabled: true,
+    active: true,
     condition: {
       segments: "electronics_lover"
     },
@@ -41,7 +41,7 @@ db.triggers.insertMany([
   {
     name: "Shoes Lover Offer",
     description: "User likes shoe category",
-    enabled: true,
+    active: true,
     condition: {
       segments: "shoes_lover"
     },
@@ -54,7 +54,7 @@ db.triggers.insertMany([
   {
     name: "Inactive User Alert",
     description: "User hasn't been active recently",
-    enabled: true,
+    active: true,
     condition: {
       inactivityDays: { $gt: 14 }
     },
@@ -67,7 +67,7 @@ db.triggers.insertMany([
   {
     name: "High Value Customer",
     description: "User has spent more than Rs 100000 total",
-    enabled: true,
+    active: true,
     condition: {
       totalPurchaseAmount: { $gt: 100000 }
     },
@@ -80,7 +80,7 @@ db.triggers.insertMany([
   {
     name: "Cart Abandonment",
     description: "User added item to cart but did not buy",
-    enabled: true,
+    active: true,
     condition: {
       segments: "add_to_cart_only"
     },
@@ -93,7 +93,7 @@ db.triggers.insertMany([
   {
     name: "New User Welcome",
     description: "When session count = 1",
-    enabled: true,
+    active: true,
     condition: {
       sessionCount: 1
     },
@@ -106,7 +106,7 @@ db.triggers.insertMany([
   {
     name: "Power User",
     description: "User with very high activity",
-    enabled: true,
+    active: true,
     condition: {
       totalEvents: { $gt: 300 }
     },
@@ -119,7 +119,7 @@ db.triggers.insertMany([
   {
     name: "Multi-Category Shopper",
     description: "User viewed shoes and is electronics lover",
-    enabled: true,
+    active: true,
     condition: {
       categoriesViewed: "shoes",
       segments: "electronics_lover"

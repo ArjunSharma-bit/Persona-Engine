@@ -1,4 +1,4 @@
-import { EventType } from "./types/event-types";
+import { EventType } from "../types/event-types";
 
 export function normalizeEvent(type: EventType, data: any) {
     switch (type) {

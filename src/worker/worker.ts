@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 import mongoose from 'mongoose';
-import { normalizeEvent } from '../norma-lizers';
+import { normalizeEvent } from '../files/norma-lizers';
 import { EventSchema } from '../schema/event.schema';
 import { UserProfileSchema } from '../schema/profile.schema';
 import { ProfileService } from "../services/profile.service";
