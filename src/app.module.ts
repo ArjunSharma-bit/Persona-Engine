@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { EventModule } from './modules/event.module'
 import { MongoModule } from './database/mongo.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
@@ -7,6 +7,8 @@ import { AnalyticsModule } from './modules/analytics.module';
 import { MlModule } from './ml/ml.module';
 import { ReplayModule } from './modules/replay.module';
 import { FeatureFlagModule } from './modules/featureflag.module';
+import { RequestLoggerMiddleware } from './logger/req-log.middleware';
+import { DlqController } from './controller/dlq.controller';
 
 @Module({
     imports: [
@@ -18,5 +20,10 @@ import { FeatureFlagModule } from './modules/featureflag.module';
             }
         }),
         EventModule, MongoModule, ProfileModule, AnalyticsModule, MlModule, ReplayModule, FeatureFlagModule,],
+    controllers: [DlqController],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(RequestLoggerMiddleware).forRoutes("*")
+    }
+}

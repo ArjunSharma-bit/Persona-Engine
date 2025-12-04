@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { Client } from "pg";
+import { appLogger } from "../logger/logger.service";
 
 @Injectable()
 export class ExperimentService {
-  private pg: Client;
+  private readonly pg: Client;
 
   constructor() {
     this.pg = new Client({
@@ -14,7 +15,7 @@ export class ExperimentService {
       port: Number(process.env.POSTGRES_PORT || 5432),
     });
 
-    this.pg.connect().catch(err => console.error('ExperimentService PG connect error', err));
+    this.pg.connect().catch(err => appLogger.error(`ExperimentService PG connect error ${err}`));
   }
 
   async trackConversion(args: {

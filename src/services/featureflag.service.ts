@@ -5,7 +5,7 @@ import { Model } from "mongoose";
 
 @Injectable()
 export class FeatureFlagService {
-    constructor(@InjectModel(FeatureFlag.name) private flagModel: Model<FeatureFlag>) { }
+    constructor(@InjectModel(FeatureFlag.name) private readonly flagModel: Model<FeatureFlag>) { }
 
     getAll() {
         return this.flagModel.find({ enabled: true });

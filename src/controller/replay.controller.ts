@@ -1,30 +1,59 @@
-import { Controller, Get, Post, Query } from "@nestjs/common";
+import { BadRequestException, Controller, Get, Post, Query, UsePipes, ValidationPipe } from "@nestjs/common";
 import { ReplayService } from "../services/replay.service";
 import { replayStatus } from "../mapper/replay.status";
+import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from "@nestjs/swagger";
+import { ReplayQueryDto } from "../dto/replay-query.dto";
+import { ReplayResponseDto } from "../dto/replay-response.dto";
 
-@Controller('replay')
+@ApiTags("Replay")
+@Controller("replay")
 export class ReplayController {
     constructor(private readonly replayService: ReplayService) { }
 
     @Post()
-    async replay(
-        @Query('from') from: string,
-        @Query('to') to: string,
-        @Query('mode') mode = 'full',
-        @Query('eps') eps = '300'
-    ) {
-        if (from === undefined || to === undefined) return { error: "Mising 'from' or 'to' query params" };
+    @ApiOperation({ summary: "Replay historical events with different modes" })
+    @ApiQuery({ name: "from", type: String, required: true })
+    @ApiQuery({ name: "to", type: String, required: true })
+    @ApiQuery({
+        name: "mode",
+        required: false,
+        example: "full",
+        description: "full | recompute | patch | dry-run | triggers-only"
+    })
+    @ApiQuery({
+        name: "eps",
+        required: false,
+        example: 300,
+        description: "Events per second throttle limit"
+    })
+    @ApiResponse({ status: 200, description: "Replay completed" })
+    @ApiResponse({ status: 400, description: "Invalid query parameters" })
+    @UsePipes(new ValidationPipe({ whitelist: true }))
+    async replay(@Query() query: ReplayQueryDto): Promise<ReplayResponseDto> {
+        if (!query.from || !query.to)
+            throw new BadRequestException("Missing 'from' or 'to' query params");
 
-        const fromTs = Number(from);
-        const toTs = Number(to);
-        const epsNum = Number(eps)
-        if (isNaN(fromTs) || isNaN(toTs)) return { error: "'from' and 'to' must be valid timestamps" }
+        const fromTs = Number(query.from);
+        const toTs = Number(query.to);
+        const epsNum = Number(query.eps);
 
-        return this.replayService.replayEvents(fromTs, toTs, mode, epsNum)
+        if (isNaN(fromTs) || isNaN(toTs)) {
+            throw new BadRequestException("'from' and 'to' must be valid timestamps");
+        }
+        if (epsNum <= 0)
+            throw new BadRequestException("'eps' must be greater than 0");
+
+        const validModes = ["full", "recompute", "patch", "dry-run", "triggers-only"];
+        if (!validModes.includes(query.mode))
+            throw new BadRequestException(`Invalid mode '${query.mode}'. Allowed: ${validModes.join(", ")}`);
+
+        return this.replayService.replayEvents(fromTs, toTs, query.mode, epsNum);
     }
 
-    @Get('status')
+    @Get("status")
+    @ApiOperation({ summary: "Get replay engine status" })
+    @ApiResponse({ status: 200 })
     status() {
-        return replayStatus
+        return replayStatus;
     }
 }

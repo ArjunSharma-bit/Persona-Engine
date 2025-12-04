@@ -10,6 +10,7 @@ import { TriggerService } from '../services/trigger.service';
 import { TriggerEvaluator } from './trigger-eval';
 import { mapMongoTrigger } from '../mapper/trigger.mapper'
 import { mapMongoProfile } from '../mapper/profile.mapper'
+import { appLogger } from '../logger/logger.service';
 
 async function bootstrap() {
   const redis = new Redis(process.env.REDIS_URL || "redis://redis:6379");
@@ -26,7 +27,7 @@ async function bootstrap() {
 
   const triggerEval = new TriggerEvaluator();
 
-  console.log('Worker started, listening for events...');
+  appLogger.info('Worker started, listening for events...');
 
   while (true) {
     const response = await redis.xread(
@@ -50,21 +51,21 @@ async function bootstrap() {
         //replay mode
         switch (replayMode) {
           case "dry-run":
-            console.log(`DRY-RUN ------- skipping event for user=${userId}`)
+            appLogger.info(`DRY-RUN ------- skipping event for user=${userId}`)
             continue;
 
           case "recompute":
             await profileService.upsertProfileFromEvent({
               userId, type, data: normalizedData, timestamp,
             })
-            console.log(`RECOMPUTE ----- Updated profile only for ${userId}`)
+            appLogger.info(`RECOMPUTE ----- Updated profile only for ${userId}`)
             continue;
 
           case "profile-only":
             await profileService.upsertProfileFromEvent({
               userId, type, data: normalizedData, timestamp,
             })
-            console.log(`PROFILE ------ Updated profile only for ${userId}`)
+            appLogger.info(`PROFILE ------ Updated profile only for ${userId}`)
             continue;
 
           case "triggers-only":
@@ -76,7 +77,7 @@ async function bootstrap() {
                 const triggers = mapMongoTrigger(triggerDocs);
 
                 const fired = await triggerEval.evaluateTriggers(domainProfile, triggers);
-                console.log(`TRIGGERS ---- Fired`, fired)
+                appLogger.info(`TRIGGERS ---- Fired ${fired}`)
               }
             }
             continue;
@@ -99,14 +100,14 @@ async function bootstrap() {
         const fired = await triggerEval.evaluateTriggers(plainPro, triggers)
 
         if (fired.length > 0) {
-          console.log(" Triggers Firrrrred", fired);
+          appLogger.info(`Triggers Firrrrred ${fired}`);
         }
 
-        console.log('processed event:', id, 'for user:', userId)
+        appLogger.info(`Processed event: ${id} for User: ${userId} `)
 
 
       } catch (err) {
-        console.error("worker Error", err)
+        appLogger.error(`Worker Error: ${err.message}`)
 
         await redis.xadd("event_stream_dlq", "*", "payload", fields[1]);
       }

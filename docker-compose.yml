@@ -22,6 +22,9 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
     networks:
       - personalization-net
 
@@ -141,6 +144,9 @@ services:
     environment:
       - MONGO_URL=${MONGO_URL}
       - REDIS_URL=${REDIS_URL}
+    volumes:
+      - .:/app
+      - /app/node_modules
     networks:
       - personalization-net
   #Batch-worker
@@ -161,6 +167,9 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - .:/app
+      - /app/node_modules
     networks:
       - personalization-net
 

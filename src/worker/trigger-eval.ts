@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Profile, TriggerDefinition, TriggerCondition, TriggerAction } from "../types/profile";
-
+import { appLogger } from '../logger/logger.service';
 export class TriggerEvaluator {
     async evaluateTriggers(profile: Profile, triggers: TriggerDefinition[]): Promise<string[]> {
         const fired: string[] = [];
@@ -47,7 +47,7 @@ export class TriggerEvaluator {
     async executeAction(action: TriggerAction, profile: Profile): Promise<void> {
         switch (action.type) {
             case "log":
-                console.log(`TRIGGER ACTION LOG: ${action.message} (user=${profile.userId})`);
+                appLogger.info(`TRIGGER ACTION LOG: ${action.message} (user=${profile.userId})`);
                 break;
 
             case "webhook":
@@ -59,9 +59,9 @@ export class TriggerEvaluator {
                     });
                 } catch (err) {
                     if (err instanceof Error) {
-                        console.error("Trigger webhook failed:", err.message);
+                        appLogger.error(`Trigger webhook failed: ${err.message}`);
                     } else {
-                        console.error("Unknown Error", err)
+                        appLogger.debug(`Unknown Error: ${err}`)
                     }
                 }
                 break;

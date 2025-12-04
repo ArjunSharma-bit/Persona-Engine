@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { Client } from "pg"
 import { EventSchema } from "../schema/event.schema";
 import * as cron from "node-cron";
+import { appLogger } from "../logger/logger.service";
 
 async function runBatch() {
     console.log("Batch Analytics running.....");
@@ -76,13 +77,13 @@ async function runBatch() {
         [today, revenue, orders]
     );
 
-    console.log("Batch analytics job completed!");
+    appLogger.info("Batch analytics job completed!");
 
     await pg.end();
     await mongoose.disconnect();
 }
 cron.schedule("0 0 * * *", () => {
     runBatch();
-    console.log("Running daily analytics job.... ")
+    appLogger.info("Running daily analytics job.... ")
 })
 runBatch().catch(console.error);
