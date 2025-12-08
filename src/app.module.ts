@@ -9,6 +9,7 @@ import { ReplayModule } from './modules/replay.module';
 import { FeatureFlagModule } from './modules/featureflag.module';
 import { RequestLoggerMiddleware } from './logger/req-log.middleware';
 import { DlqController } from './controller/dlq.controller';
+import { ReqIdMiddleware } from './co-id/middleware/req-id.middleware';
 
 @Module({
     imports: [
@@ -20,10 +21,13 @@ import { DlqController } from './controller/dlq.controller';
             }
         }),
         EventModule, MongoModule, ProfileModule, AnalyticsModule, MlModule, ReplayModule, FeatureFlagModule,],
+    providers: [
+
+    ],
     controllers: [DlqController],
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(RequestLoggerMiddleware).forRoutes("*")
+        consumer.apply(ReqIdMiddleware, RequestLoggerMiddleware).forRoutes("*")
     }
 }

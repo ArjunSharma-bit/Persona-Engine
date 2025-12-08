@@ -5,6 +5,7 @@ import { Model } from "mongoose";
 import { Event } from "../schema/event.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { replayStatus } from "../mapper/replay.status";
+import { randomUUID } from "crypto";
 
 
 @Injectable()
@@ -19,6 +20,7 @@ export class ReplayService {
 
         const total = events.length;
         let processed = 0;
+        const replayReqId = randomUUID();
 
         replayStatus.active = true;
         replayStatus.mode = mode;
@@ -39,6 +41,7 @@ export class ReplayService {
                     data: e.data,
                     timestamp: e.timestamp,
                     replayMode: mode,
+                    reqId: replayReqId,
                 })
             )
             processed++;
