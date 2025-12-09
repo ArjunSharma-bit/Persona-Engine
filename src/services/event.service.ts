@@ -1,11 +1,13 @@
 import { InjectRedis } from "@nestjs-modules/ioredis";
 import { Injectable } from "@nestjs/common";
 import Redis from "ioredis";
+import { getContext } from "../co-id/current-context";
 @Injectable()
 export class EventService {
     constructor(
         @InjectRedis() private readonly redis: Redis,
     ) { }
+
 
     async ingestEvent(event: any) {
         const payload = {
@@ -14,11 +16,14 @@ export class EventService {
             data: event.data || {},
             timestamp: event.timestamp || Date.now()
         }
+        const context = getContext()
+        const reqId = context.reqId
+
         await this.redis.xadd(
             'event_stream',
             '*',
             'payload',
-            JSON.stringify(payload)
+            JSON.stringify({ ...payload, reqId: reqId || null })
         );
 
         return { status: 'queued' };

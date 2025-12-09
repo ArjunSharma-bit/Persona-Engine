@@ -22,6 +22,9 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
     networks:
       - personalization-net
 
@@ -129,6 +132,7 @@ services:
     networks:
       - personalization-net
 
+  #Event-worker
   event-worker:
     build: .
     container_name: event-worker
@@ -140,6 +144,32 @@ services:
     environment:
       - MONGO_URL=${MONGO_URL}
       - REDIS_URL=${REDIS_URL}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - personalization-net
+  #Batch-worker
+  batch-worker:
+    build: .
+    container_name: batch-worker
+    restart: always
+    command: [ "node", "dist/worker/b-anal.worker.js" ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo-setup:
+        condition: service_completed_successfully
+    environment:
+      - MONGO_URL=${MONGO_URL}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - .:/app
+      - /app/node_modules
     networks:
       - personalization-net
 

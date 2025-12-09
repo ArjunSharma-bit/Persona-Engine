@@ -12,6 +12,8 @@
         "resolveJsonModule": true,
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "req-id.middleware.ts",
+        "request-context.service.ts"
     ]
 }
