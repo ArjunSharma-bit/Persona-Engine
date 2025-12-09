@@ -9,7 +9,7 @@ import { MlService } from "../ml/ml.service";
 @Injectable()
 export class ProfileService {
     constructor(
-        @InjectModel(UserProfile.name) private profileModel: Model<UserProfile>,
+        @InjectModel(UserProfile.name) private readonly profileModel: Model<UserProfile>,
         @InjectRedis() private readonly redis: Redis,
         private readonly mlService: MlService,
     ) { }
@@ -78,7 +78,7 @@ export class ProfileService {
     }
 
     //ml scoring
-    private applyMl(profile: any) {
+    private applyMl(profile: UserProfile) {
         const inactivityDays = Math.max(0, (Date.now() - (profile.lastActive || Date.now())) / (1000 * 60 * 60 * 24));
         const churnFeatures = [
             profile.totalEvents || 0,
@@ -89,7 +89,7 @@ export class ProfileService {
     }
 
     //affinity scoring
-    private applyAffinity(profile: any) {
+    private applyAffinity(profile: UserProfile) {
         const categoryCounts = profile.categoriesViewed.reduce((acc, cat) => {
             acc[cat] = (acc[cat] || 0) + 1;
             return acc;
@@ -97,7 +97,7 @@ export class ProfileService {
         profile.affinityScore = categoryCounts;
     }
     //segment scoring
-    private applySegment(profile: any) {
+    private applySegment(profile: UserProfile) {
         const segments: string[] = [];
 
         if ((profile.totalEvents || 0) > 50 || (profile.sessionCount || 0) > 10) {
@@ -105,10 +105,10 @@ export class ProfileService {
         }
 
         if (profile.affinityScore && Object.keys(profile.affinityScore).length > 0) {
-            const sorted = Object.entries(profile.affinityScore).sort((a, b) => (b[1] as number) - (a[1] as number));
+            const sorted = Object.entries(profile.affinityScore).sort((a, b) => (b[1]) - (a[1]));
             const [topCategory, topCount] = sorted[0];
-            const total = Object.values(profile.affinityScore).reduce((a, b) => (a as number) + (b as number), 0) || 1;
-            if ((topCount as number) / (total as number) > 0.5) {
+            const total = Object.values(profile.affinityScore).reduce((a, b) => (a) + (b), 0) || 1;
+            if ((topCount) / (total) > 0.5) {
                 segments.push(`${topCategory}_lover`);
             }
         }

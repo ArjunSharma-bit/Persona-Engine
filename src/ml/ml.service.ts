@@ -2,10 +2,11 @@ import { Injectable } from "@nestjs/common";
 import * as fs from "fs";
 import * as path from "path";
 import { appLogger } from "../logger/logger.service";
+import { LinearModel } from "./simp.interface";
 
 @Injectable()
 export class MlService {
-    private churnModel: any = null;
+    private churnModel: LinearModel | null = null;
     private affinityModel: any = null;
 
     constructor() {

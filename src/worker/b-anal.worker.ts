@@ -5,9 +5,11 @@ import * as cron from "node-cron";
 import { appLogger } from "../logger/logger.service";
 
 async function runBatch() {
-    console.log("Batch Analytics running.....");
+    appLogger.info("Batch Analytics running.....");
 
-    await mongoose.connect(process.env.MONGO_URL || "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/personalization?replicaSet=rs0")
+    const mongoUrl = process.env.MONGO_URL;
+    if (!mongoUrl) throw new Error("MONGO_URL is not defined")
+    await mongoose.connect(mongoUrl);
 
     const Event = mongoose.model("Event", EventSchema)
 

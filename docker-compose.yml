@@ -170,6 +170,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+      - /app/dist
     networks:
       - personalization-net
 

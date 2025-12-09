@@ -13,7 +13,5 @@
     },
     "include": [
         "src/**/*",
-        "req-id.middleware.ts",
-        "request-context.service.ts"
     ]
 }

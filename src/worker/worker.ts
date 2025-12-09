@@ -12,13 +12,16 @@ import { mapMongoTrigger } from '../mapper/trigger.mapper'
 import { mapMongoProfile } from '../mapper/profile.mapper'
 import { appLogger } from '../logger/logger.service';
 import { runWithContext } from '../co-id/current-context';
+import { EventPayload } from '../types/event-types';
 
 async function bootstrap() {
-  const redis = new Redis(process.env.REDIS_URL || "redis://redis:6379");
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) throw new Error("REDIS_URL is not defined")
+  const redis = new Redis(redisUrl);
 
-  await mongoose.connect(
-    process.env.MONGO_URL || "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/personalization?replicaSet=rs0"
-  );
+  const mongoUrl = process.env.MONGO_URL;
+  if (!mongoUrl) throw new Error("MONGO_URL is not defined")
+  await mongoose.connect(mongoUrl);
 
   const EventModel = mongoose.model('Event', EventSchema);
   const UserProfileModel = mongoose.model('UserProfile', UserProfileSchema);
@@ -39,7 +42,7 @@ async function bootstrap() {
 
     for (const [id, fields] of entries) {
       try {
-        const payload = JSON.parse(fields[1]);
+        const payload = JSON.parse(fields[1]) as EventPayload;
 
         const requestId = payload.requestId || null;
 

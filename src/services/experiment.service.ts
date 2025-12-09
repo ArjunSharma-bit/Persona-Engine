@@ -8,11 +8,11 @@ export class ExperimentService {
 
   constructor() {
     this.pg = new Client({
-      host: process.env.POSTGRES_HOST || 'postgres',
-      user: process.env.POSTGRES_USER || 'postgres',
-      password: process.env.POSTGRES_PASSWORD || 'postgres',
-      database: process.env.POSTGRES_DB || 'persona',
-      port: Number(process.env.POSTGRES_PORT || 5432),
+      host: process.env.POSTGRES_HOST,
+      user: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
+      port: Number(process.env.POSTGRES_PORT),
     });
 
     this.pg.connect().catch(err => appLogger.error(`ExperimentService PG connect error ${err}`));

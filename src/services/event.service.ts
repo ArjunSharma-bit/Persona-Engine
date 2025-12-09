@@ -2,6 +2,7 @@ import { InjectRedis } from "@nestjs-modules/ioredis";
 import { Injectable } from "@nestjs/common";
 import Redis from "ioredis";
 import { getContext } from "../co-id/current-context";
+import { EventDto } from "../dto/event-request.dto";
 @Injectable()
 export class EventService {
     constructor(
@@ -9,7 +10,7 @@ export class EventService {
     ) { }
 
 
-    async ingestEvent(event: any) {
+    async ingestEvent(event: EventDto) {
         const payload = {
             userId: event.userId,
             type: event.type,
