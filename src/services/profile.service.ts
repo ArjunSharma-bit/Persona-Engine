@@ -18,66 +18,57 @@ export class ProfileService {
         return new ProfileService(model, redis, ml);
     }
 
-    async upsertProfileFromEvent(event: { userId: string; type: string; data: any; timestamp: number; },
+    async upsertProfileFromEvent(
+        event: { userId: string; type: string; data: any; timestamp: number },
         mode: "full" | "recompute" | "profile-only" = "full"
     ) {
         const { userId, type, data, timestamp = Date.now() } = event;
 
-        let profile = await this.profileModel.findOne({ userId });
-
-        if (!profile) {
-            profile = new this.profileModel({
-                userId,
-                totalEvents: 0,
-                sessionCount: 0,
-                totalPurchaseAmount: 0,
-                categoriesViewed: [],
-                lastSeenProduct: null,
-                lastActiveAt: timestamp,
-                segments: [],
-                churnScore: 0,
-                affinityScores: {},
-            } as Partial<UserProfile>);
-        }
-
-        profile.totalEvents = (profile.totalEvents || 0) + 1;
-        profile.lastActive = timestamp;
+        const updateOps: any = {
+            $inc: { totalEvents: 1, sessionCount: 0, totalPurchaseAmount: 0 },
+            $set: { lastActiveAt: timestamp },
+            $addToSet: {},
+        };
 
         switch (type) {
             case 'product_view':
                 if (data?.category) {
-                    if (!profile.categoriesViewed.includes(data.category)) {
-                        profile.categoriesViewed.push(data.category);
-                    }
+                    updateOps.$addToSet = { categoriesViewed: data.category };
                 }
-                if (data?.productId) profile.lastSeenProduct = data.productId;
+                if (data?.productId) {
+                    updateOps.$set.lastSeenProduct = data.productId;
+                }
                 break;
 
             case 'purchase':
-                profile.totalPurchaseAmount = (profile.totalPurchaseAmount || 0) + (Number(data?.amount) || 0);
+                updateOps.$inc.totalPurchaseAmount = Number(data?.amount) || 0;
                 break;
 
             case 'session_start':
-                profile.sessionCount = (profile.sessionCount || 0) + 1;
+                updateOps.$inc.sessionCount = 1;
                 break;
+        }
 
-            case 'add_to_cart':
-            case 'search':
-            default:
-                break;
-        }
+        let profile = await this.profileModel.findOneAndUpdate(
+            { userId },
+            updateOps,
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
+
         if (mode === "full" || mode === "recompute") {
-            this.applyMl(profile)
-            this.applyAffinity(profile)
-            this.applySegment(profile)
+
+            this.applyMl(profile);
+            this.applyAffinity(profile);
+            this.applySegment(profile);
+
+            await profile.save();
         }
-        await profile.save();
+
         await this.redis.set(`profile:${userId}`, JSON.stringify(profile), 'EX', 3600);
 
         return profile;
     }
 
-    //ml scoring
     private applyMl(profile: UserProfile) {
         const inactivityDays = Math.max(0, (Date.now() - (profile.lastActive || Date.now())) / (1000 * 60 * 60 * 24));
         const churnFeatures = [

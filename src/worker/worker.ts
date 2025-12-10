@@ -68,7 +68,9 @@ async function bootstrap() {
             case "profile-only":
               await profileService.upsertProfileFromEvent({
                 userId, type, data: normalizedData, timestamp
-              });
+              },
+                "profile-only"
+              );
               appLogger.info("Replay[profile-only]: Profile updated only");
               return;
 

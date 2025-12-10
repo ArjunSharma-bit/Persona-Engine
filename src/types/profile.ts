@@ -8,7 +8,7 @@ export interface Profile {
     segments: string[];
     churnScore: number;
     affinityScores: Record<string, number>;
-    lastActiveAt: number;
+    lastActive: number;
 }
 
 export type ComparisonOperators =
