@@ -36,7 +36,7 @@ Getting Started
 
 1.Clone the repo
 
-  git clone https://github.com/ArjunSharma-bit/Persona-Engine.git
+  git clone https://github.com/ArjunSharma-bit/Persona-engine.git
   cd persona-engine
 
 2.Install dependencies
