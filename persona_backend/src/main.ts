@@ -1,0 +1,25 @@
+import { NestFactory } from "@nestjs/core"
+import { AppModule } from './app.module'
+import { AllExceptionsFilter } from "./logger/all-exp.filter";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { appLogger } from "./logger/logger.service";
+
+async function bootstrap() {
+    const app = await NestFactory.create(AppModule);
+    app.enableCors()
+    app.setGlobalPrefix('api');
+    app.useGlobalFilters(new AllExceptionsFilter)
+
+    //swagger
+    const config = new DocumentBuilder()
+        .setTitle("Persona Engine API")
+        .setDescription("API documentation for events, profiles, analytics, trigger,and flags")
+        .setVersion("1.0.0")
+        .build()
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup("api/docs", app, document)
+    await app.listen(3000);
+    appLogger.info('I am Here http://localhost:3000');
+}
+bootstrap();
