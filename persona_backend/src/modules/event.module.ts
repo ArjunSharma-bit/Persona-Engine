@@ -4,6 +4,7 @@ import { EventService } from '../services/event.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventSchema, Event } from '../schema/event.schema';
 import { ProfileModule } from './profile.module';
+import { EventsGateway } from '../controller/events.gateway';
 
 @Module({
   imports: [
@@ -11,6 +12,6 @@ import { ProfileModule } from './profile.module';
     ProfileModule,
   ],
   controllers: [EventController],
-  providers: [EventService,],
+  providers: [EventService, EventsGateway],
 })
 export class EventModule { }

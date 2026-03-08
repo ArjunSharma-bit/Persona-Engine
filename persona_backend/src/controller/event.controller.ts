@@ -3,11 +3,14 @@ import { EventService } from "../services/event.service";
 import { EventDto } from "../dto/event-request.dto";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBadRequestResponse } from "@nestjs/swagger";
 import { EventResponseDto } from "../dto/event-response.dto";
+import { EventsGateway } from "./events.gateway";
 
 @ApiTags("Events")
 @Controller("events")
 export class EventController {
-    constructor(private readonly eventService: EventService) { }
+    constructor(private readonly eventService: EventService,
+        private readonly eventsGateway: EventsGateway,
+    ) { }
 
     @Post()
     @ApiOperation({ summary: "Ingest a new user event" })
@@ -26,10 +29,15 @@ export class EventController {
     @UsePipes(new ValidationPipe({ whitelist: true }))
     async ingest(@Body() body: EventDto): Promise<EventResponseDto> {
         const result = await this.eventService.ingestEvent(body);
+
+        this.eventsGateway.broadcastNewEvent({
+            ...body, timestamp: body.timestamp || Date.now()
+        })
         return result;
     }
     @Get()
     async getallEvents() {
         return this.eventService.findAll();
+
     }
 }

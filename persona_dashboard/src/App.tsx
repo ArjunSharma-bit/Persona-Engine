@@ -1,36 +1,44 @@
 import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 import { ProfileCard } from './ProfileCard';
 import { AnalyticsWidget } from './Analytics';
-import { FeatureFlags } from './FFlags';
 import { DLQMonitor } from './Dlqstats';
+import { FeatureFlags } from './FFlags';
 
 function App() {
   const [events, setEvents] = useState<any[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const fetchEvents = () => {
-      fetch('http://localhost:3000/api/events')
-        .then(res => res.json())
-        .then(data => {
-          // Only update if we actually got data
-          if (Array.isArray(data)) {
-            setEvents(data);
-            setLastUpdated(new Date());
-          } else {
-            console.warn("API returned non-array data:", data);
-            setEvents([]);
-          }
-        })
-        .catch(err => {
-          console.error("Event fetch error:", err);
-          setEvents([]);
-        });
-    };
+    fetch('http://localhost:3000/api/events')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setEvents(data);
+          setLastUpdated(new Date());
+        }
+      });
 
-    fetchEvents();
-    const interval = setInterval(fetchEvents, 1000); // Fast polling (1s) for feed
-    return () => clearInterval(interval);
+    const socket = io('http://localhost:3000');
+
+    socket.on('connect', () => {
+      setIsConnected(true);
+      console.log("WebSocket Connected!");
+    });
+
+    socket.on('disconnect', () => {
+      setIsConnected(false);
+    });
+
+    socket.on('live_event', (newEvent) => {
+      setEvents(prevEvents => [newEvent, ...prevEvents].slice(0, 100));
+      setLastUpdated(new Date());
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   return (
@@ -44,11 +52,19 @@ function App() {
     }}>
       <header style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ margin: 0, color: '#111827' }}>Persona Engine <span style={{ color: '#2563eb' }}>Live Dashboard</span></h1>
-        <div style={{ fontSize: '14px', color: '#121213' }}>
-          <span style={{ display: 'inline-block', width: '8px', height: '8px', backgroundColor: '#10b981', borderRadius: '50%', marginRight: '8px' }}></span>
-          Online
+
+        {/* Dynamic Status Indicator */}
+        <div style={{ fontSize: '14px', color: '#121213', display: 'flex', alignItems: 'center' }}>
+          <span style={{
+            display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', marginRight: '8px',
+            backgroundColor: isConnected ? '#10b981' : '#ef4444',
+            boxShadow: isConnected ? '0 0 8px #10b981' : 'none'
+          }}></span>
+          {isConnected ? 'Live Connected' : 'Disconnected'}
         </div>
       </header>
+
+      {/* ... the rest of your components ... */}
       <DLQMonitor />
 
       <AnalyticsWidget />

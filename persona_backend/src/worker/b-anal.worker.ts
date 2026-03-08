@@ -22,12 +22,14 @@ async function runBatch() {
     await pg.connect()
 
     const today = new Date();
+
+    const startOfToday = new Date()
     today.setHours(0, 0, 0, 0);
     // For Production
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+    // const yesterday = new Date(today);
+    // yesterday.setDate(yesterday.getDate() - 1);
 
-    const start = yesterday.getTime();
+    const start = startOfToday.getTime();
     const end = today.getTime()
 
     //total events
