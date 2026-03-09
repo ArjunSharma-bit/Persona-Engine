@@ -41,10 +41,10 @@ export function DLQMonitor() {
 
     return (
         <div style={{
-            ...styles.card, borderColor: hasErrors ? '#fca5a5' : '#a7f3d0', backgroundColor: hasErrors ? '#fef2f2' : '#ecfdf5'
+            ...styles.card, borderColor: hasErrors ? 'rgba(239, 68, 68, 0.5)' : 'rgba(16, 185, 129, 0.2)', backgroundColor: hasErrors ? 'rgba(127, 29, 29, 0.3)' : 'rgba(17, 24, 39, 0.7)'
         }}>
             <div style={styles.header}>
-                <h3 style={{ margin: 0, color: hasErrors ? '#991b1b' : '#065f46', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ margin: 0, color: hasErrors ? '#991b1b' : '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     {hasErrors ? 'Dead Letter Queue Alert' : 'System Health'}
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -88,8 +88,8 @@ export function DLQMonitor() {
 }
 
 const styles: any = {
-    card: { border: '1px solid', borderRadius: '12px', padding: '16px', marginBottom: '24px', transition: 'all 0.3s', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' },
+    card: { backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: '12px', padding: '16px', marginBottom: '24px', transition: 'all 0.3s', boxShadow: '0 4px 30px rgba(0, 0, 0, 0.5)', border: '1px solid' },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     list: { display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px', maxHeight: '180px', overflowY: 'auto', paddingRight: '4px' },
-    errorRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', backgroundColor: '#fee2e2', borderRadius: '6px', border: '1px solid #fecaca' }
+    errorRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }
 };

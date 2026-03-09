@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-
 export function FeatureFlags() {
     const [flags, setFlags] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -18,8 +17,6 @@ export function FeatureFlags() {
     }
     useEffect(() => {
         fetchFlags();
-        const interval = setInterval(fetchFlags, 5000);
-        return () => clearInterval(interval);
     }, []);
 
     const toggleFlag = async (name: string, currentStatus: boolean) => {
@@ -41,7 +38,7 @@ export function FeatureFlags() {
 
     return (
         <div style={styles.card}>
-            <h2 style={{ marginTop: 0, marginBottom: '20px' }}>Feature Flags</h2>
+            <h2 style={{ marginTop: 0, marginBottom: '20px', color: '#8898a8' }}>Feature Flags</h2>
 
             {flags.length === 0 ? (
                 <p style={{ color: '#9ca3af', fontSize: '14px' }}>No feature flags created yet.</p>
@@ -63,9 +60,9 @@ export function FeatureFlags() {
                                 onClick={() => toggleFlag(flag.name, flag.enabled)}
                                 style={{
                                     ...styles.toggleBtn,
-                                    backgroundColor: flag.enabled ? '#10b981' : '#f3f4f6',
+                                    backgroundColor: flag.enabled ? '#4f46e5' : '#f3f4f6',
                                     color: flag.enabled ? 'white' : '#9ca3af',
-                                    borderColor: flag.enabled ? '#10b981' : '#d1d5db'
+                                    borderColor: flag.enabled ? '#4f46e5' : '#d1d5db'
                                 }}
                             >
                                 {flag.enabled ? 'ON' : 'OFF'}
@@ -79,8 +76,8 @@ export function FeatureFlags() {
 }
 
 const styles: any = {
-    card: { border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', marginBottom: '24px', backgroundColor: '#fff', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', height: '100%' },
+    card: { backgroundColor: 'rgba(17, 24, 39, 0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '24px', marginBottom: '24px', boxShadow: '0 4px 30px rgba(0, 0, 0, 0.5)', height: '100%' },
     list: { display: 'flex', flexDirection: 'column', gap: '12px' },
-    row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px' },
+    row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '8px' },
     toggleBtn: { padding: '8px 16px', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s', width: '70px', border: '1px solid' }
 };

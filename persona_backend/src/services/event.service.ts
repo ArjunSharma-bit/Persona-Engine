@@ -6,7 +6,7 @@ import { EventDto } from "../dto/event-request.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Event } from "../schema/event.schema";
-import { timestamp } from "rxjs";
+
 @Injectable()
 export class EventService {
     constructor(

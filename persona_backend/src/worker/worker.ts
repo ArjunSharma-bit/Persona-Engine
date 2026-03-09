@@ -119,6 +119,11 @@ async function bootstrap() {
           error: err.message,
           reqId,
         }));
+
+        await redis.publish("dlq_alerts", JSON.stringify({
+          id: Date.now().toString(), // Give React a quick ID to use as a key
+          payload: { original: failedPayload, error: err.message }
+        }));
       }
     }
   }
