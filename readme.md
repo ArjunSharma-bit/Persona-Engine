@@ -18,7 +18,7 @@ Persona-Engine is built on a robust, fault-tolerant microservices architecture:
 **Frontend (The Dashboard)**
 * React 18 (Vite)
 * Socket.IO-Client (Real-time data streaming)
-* Three.js / Postprocessing (Interactive PixelBlast background)
+* Three.js / Postprocessing (Interactive PixelBlast background Made By [ReactBits](https://reactbits.dev))
 * Custom Glassmorphism CSS UI
 
 **Backend (The Engine)**
