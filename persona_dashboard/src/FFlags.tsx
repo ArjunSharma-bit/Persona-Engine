@@ -60,9 +60,9 @@ export function FeatureFlags() {
                                 onClick={() => toggleFlag(flag.name, flag.enabled)}
                                 style={{
                                     ...styles.toggleBtn,
-                                    backgroundColor: flag.enabled ? '#4f46e5' : '#f3f4f6',
-                                    color: flag.enabled ? 'white' : '#9ca3af',
-                                    borderColor: flag.enabled ? '#4f46e5' : '#d1d5db'
+                                    backgroundColor: flag.enabled ? '#646b79' : 'rgba(255, 255, 255, 0.05)',
+                                    color: flag.enabled ? '#d6d9df' : '#9ca3af',
+                                    borderColor: flag.enabled ? '#2e2f31' : '#d1d5db'
                                 }}
                             >
                                 {flag.enabled ? 'ON' : 'OFF'}

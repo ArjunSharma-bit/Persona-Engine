@@ -5,6 +5,7 @@ import { AnalyticsWidget } from './Analytics';
 import { DLQMonitor } from './Dlqstats';
 import { FeatureFlags } from './FFlags';
 import PixelBlast from './PixelBlast';
+import { LivePulse } from './LivePulse';
 
 function App() {
   const [events, setEvents] = useState<any[]>([]);
@@ -63,17 +64,17 @@ function App() {
         pointerEvents: 'none'
       }}>
         {/* Only enable this when on charger */}
-        <PixelBlast
-          color="#4f46e5"
-          pixelSize={6}
+        {/* <PixelBlast
+          color="#6b7280"
+          pixelSize={2}
           patternScale={12}
           speed={0.3}
-        />
+        /> */}
       </div>
 
       <header style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ margin: 0, color: '#8898a8' }}>
-          Persona Engine <span style={{ color: '#818cf8' }}></span>
+        <h1 style={{ margin: 0, color: '#d1d5db' }}>
+          Persona Engine <span style={{ color: '#8898a8' }}> DashBoard</span>
         </h1>
 
         {/* Dynamic Status Indicator */}
@@ -88,6 +89,8 @@ function App() {
       </header>
 
       <DLQMonitor />
+
+      <LivePulse />
 
       <AnalyticsWidget />
 
@@ -128,12 +131,12 @@ function App() {
               <tbody>
                 {events.map((ev, i) => (
                   <tr key={ev._id || i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '12px', fontWeight: '600', color: '#818cf8' }}>{ev.type}</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: '#9ca3af' }}>{ev.type}</td>
                     <td style={{ padding: '12px', color: '#e5e7eb' }}>{ev.userId}</td>
                     <td style={{ padding: '12px', color: '#9ca3af', fontFamily: 'monospace', fontSize: '12px' }}>
                       {JSON.stringify(ev.data || {}).slice(0, 50)}...
                     </td>
-                    <td style={{ padding: '12px', color: '#6b7280' }}>
+                    <td style={{ padding: '12px', color: '#d1d5db' }}>
                       {new Date(ev.timestamp).toLocaleTimeString()}
                     </td>
                   </tr>

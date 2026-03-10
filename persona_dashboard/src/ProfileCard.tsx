@@ -83,7 +83,7 @@ export function ProfileCard() {
                     <div style={styles.statBox}>
                         <div style={styles.statLabel}>Total Revenue</div>
                         <div style={styles.statValue}>
-                            ${profile.totalRevenue?.toLocaleString() || 0}
+                            ${profile.totalPurchaseAmount?.toLocaleString() || 0}
                         </div>
                     </div>
 
@@ -112,10 +112,10 @@ export function ProfileCard() {
 const styles: any = {
     card: { backgroundColor: 'rgba(17, 24, 39, 0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '24px', marginBottom: '24px', boxShadow: '0 4px 30px rgba(0, 0, 0, 0.5)' },
     input: { flex: 1, padding: '10px 16px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.2)', backgroundColor: 'rgba(0, 0, 0, 0.2)', color: '#fff', fontSize: '15px', outline: 'none' },
-    button: { padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#4f46e5', color: 'white', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' },
+    button: { padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#646b79', color: 'white', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' },
     grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' },
     statBox: { backgroundColor: 'rgba(255, 255, 255, 0.03)', padding: '20px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)', textAlign: 'center' as const },
     statLabel: { color: '#9ca3af', fontSize: '12px', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: '8px', fontWeight: 'bold' },
     statValue: { fontSize: '28px', fontWeight: '900', color: '#fff' },
-    badge: { backgroundColor: 'rgba(79, 70, 229, 0.2)', color: '#818cf8', padding: '4px 10px', borderRadius: '9999px', fontSize: '12px', fontWeight: 'bold', border: '1px solid rgba(79, 70, 229, 0.5)' }
+    badge: { backgroundColor: 'rgba(156, 163, 175, 0.1)', color: '#d1d5db', padding: '4px 10px', borderRadius: '9999px', fontSize: '12px', fontWeight: 'bold', border: '1px solid rgba(79, 70, 229, 0.5)' }
 };
